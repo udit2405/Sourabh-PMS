@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Management & Investment Advisory System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --sidebar-w:240px;
+    --navy:#0f1b2d;
+    --navy2:#162236;
+    --navy3:#1e2f47;
+    --accent:#1d9e75;
+    --accent2:#0f6e56;
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --text:#1a1d23;
+    --text2:#5a6070;
+    --text3:#8a93a8;
+    --border:#e2e6ef;
+    --red:#e24b4a;
+    --amber:#ef9f27;
+    --green:#1d9e75;
+    --blue:#378add;
+    --purple:#7f77dd;
+    --radius:10px;
+  }
+  body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px}
+
+  /* SIDEBAR */
+  .sidebar{width:var(--sidebar-w);background:var(--navy);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+  .sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+  .sidebar-logo .logo-text{font-size:15px;font-weight:700;color:#fff;line-height:1.3}
+  .sidebar-logo .logo-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px}
+  .sidebar-section{padding:12px 12px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.6);font-size:13px;transition:all 0.15s;text-decoration:none}
+  .nav-item:hover{background:rgba(255,255,255,0.07);color:#fff}
+  .nav-item.active{background:var(--accent);color:#fff}
+  .nav-item i{font-size:16px;width:18px;text-align:center}
+  .sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,0.08)}
+  .role-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 10px;font-size:12px;color:rgba(255,255,255,0.8);cursor:pointer;margin-bottom:10px;transition:background 0.15s}
+  .role-badge:hover{background:rgba(255,255,255,0.15)}
+  .user-info{display:flex;align-items:center;gap:10px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+  .user-name{font-size:13px;color:#fff;font-weight:500}
+  .user-role{font-size:11px;color:rgba(255,255,255,0.45)}
+
+  /* MAIN */
+  .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+  .page-title{font-size:17px;font-weight:700;color:var(--text)}
+  .topbar-right{display:flex;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent2)}
+  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+  .btn-ghost:hover{background:var(--bg)}
+  .btn-danger{background:var(--red);color:#fff}
+  .content{padding:24px;flex:1}
+
+  /* CARDS */
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .card-title{font-size:14px;font-weight:700;color:var(--text)}
+  .card-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+  /* METRIC CARDS */
+  .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  .metric-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:18px 20px}
+  .metric-label{font-size:12px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .metric-value{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+  .metric-change{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px}
+  .up{color:var(--green)}.down{color:var(--red)}
+
+  /* GRIDS */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+  .grid-65-35{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;margin-bottom:20px}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px;background:var(--bg)}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#f9fafb}
+  .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#eaf3de;color:#3b6d11}
+  .badge-red{background:#fcebeb;color:#a32d2d}
+  .badge-blue{background:#e6f1fb;color:#185fa5}
+  .badge-amber{background:#faeeda;color:#854f0b}
+  .badge-purple{background:#eeedfe;color:#534ab7}
+  .badge-gray{background:#f1efe8;color:#5f5e5a}
+
+  /* TABS */
+  .tabs{display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+  .tab{padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab:hover:not(.active){color:var(--text)}
+
+  /* FORM */
+  .form-group{margin-bottom:16px}
+  .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+  .form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);background:var(--card);outline:none;transition:border-color 0.15s}
+  .form-input:focus{border-color:var(--accent)}
+  .form-select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);background:var(--card);outline:none;cursor:pointer}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--card);border-radius:14px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+  .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .modal-title{font-size:16px;font-weight:700}
+  .modal-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;padding:2px;line-height:1}
+  .modal-body{padding:24px}
+  .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+  /* PROGRESS */
+  .progress-bar{height:6px;background:var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+  .progress-fill{height:100%;border-radius:10px;transition:width 0.5s ease}
+
+  /* HEATMAP */
+  .heatmap{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .heat-cell{border-radius:6px;padding:10px 8px;text-align:center;cursor:pointer;transition:transform 0.15s}
+  .heat-cell:hover{transform:scale(1.05)}
+  .heat-cell .sector{font-size:10px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:4px}
+  .heat-cell .heat-val{font-size:14px;font-weight:700;color:#fff}
+
+  /* RISK METER */
+  .risk-meter{display:flex;gap:3px;margin-top:8px}
+  .risk-bar{flex:1;height:8px;border-radius:3px;background:var(--border)}
+
+  /* STOCK TICKER */
+  .ticker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+  .ticker-row:last-child{border-bottom:none}
+  .ticker-name{font-weight:600;font-size:13px}
+  .ticker-sector{font-size:11px;color:var(--text3)}
+
+  /* NOTIFICATIONS */
+  .notif{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+  .notif:last-child{border-bottom:none}
+  .notif-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+  .notif-text{font-size:13px;color:var(--text);line-height:1.5}
+  .notif-time{font-size:11px;color:var(--text3);margin-top:3px}
+
+  /* CHART LEGEND */
+  .chart-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text3);margin-bottom:10px}
+  .legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px}
+
+  /* ALLOCATION */
+  .alloc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .alloc-label{width:90px;font-size:12px;color:var(--text2);flex-shrink:0}
+  .alloc-bar{flex:1;height:8px;background:var(--border);border-radius:10px;overflow:hidden}
+  .alloc-fill{height:100%;border-radius:10px}
+  .alloc-pct{width:40px;text-align:right;font-size:12px;font-weight:600;color:var(--text)}
+
+  /* VIEWS */
+  .view{display:none}.view.active{display:block}
+
+  /* PROFILE CARD */
+  .profile-card{display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg);border-radius:var(--radius);margin-bottom:16px}
+  .profile-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;flex-shrink:0}
+
+  /* MOMENTUM SCORE */
+  .momentum-score{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:15px;padding:4px 12px;border-radius:20px}
+
+  /* STAT ROW */
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .stat-row:last-child{border-bottom:none}
+  .stat-label{font-size:13px;color:var(--text2)}
+  .stat-val{font-size:13px;font-weight:600;color:var(--text)}
+
+  /* SEARCH */
+  .search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 12px;width:220px}
+  .search-box input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%}
+
+  /* MINI CHART */
+  .sparkline{width:80px;height:30px}
+
+  /* RECOMMENDATION TAG */
+  .rec-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+
+  /* BREADCRUMB */
+  .breadcrumb{font-size:12px;color:var(--text3);margin-bottom:4px}
+  .breadcrumb span{color:var(--text2)}
+
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .section-title{font-size:16px;font-weight:700;color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">PMS Pro</div>
+    <div class="logo-sub">Portfolio & Investment Advisory</div>
+  </div>
+
+  <div class="sidebar-section">Main</div>
+  <a class="nav-item active" onclick="showView('dashboard',this)"><i class="ti ti-dashboard"></i>Dashboard</a>
+  <a class="nav-item" onclick="showView('portfolios',this)"><i class="ti ti-briefcase"></i>Portfolios</a>
+  <a class="nav-item" onclick="showView('research',this)"><i class="ti ti-microscope"></i>Research Hub</a>
+
+  <div class="sidebar-section">Advisory</div>
+  <a class="nav-item" onclick="showView('advisory',this)"><i class="ti ti-users"></i>Investment Advisory</a>
+  <a class="nav-item" onclick="showView('momentum',this)"><i class="ti ti-trending-up"></i>Momentum Engine</a>
+  <a class="nav-item" onclick="showView('profitability',this)"><i class="ti ti-chart-pie"></i>Profitability Engine</a>
+
+  <div class="sidebar-section">Reports</div>
+  <a class="nav-item" onclick="showView('reports',this)"><i class="ti ti-file-analytics"></i>Reports</a>
+  <a class="nav-item" onclick="showView('risk',this)"><i class="ti ti-shield-check"></i>Risk Management</a>
+  <a class="nav-item" onclick="showView('settings',this)"><i class="ti ti-settings"></i>Settings</a>
+
+  <div class="sidebar-footer">
+    <div class="role-badge" onclick="toggleRoleModal()"><i class="ti ti-switch-horizontal" style="font-size:13px"></i> Switch Role</div>
+    <div class="user-info">
+      <div class="avatar" id="userAvatar">IA</div>
+      <div>
+        <div class="user-name" id="userName">Aryan Mehta</div>
+        <div class="user-role" id="userRoleLabel">Investment Advisor</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ROLE MODAL -->
+<div class="modal-overlay" id="roleModal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <div class="modal-title">Switch Role</div>
+      <button class="modal-close" onclick="toggleRoleModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="card" style="cursor:pointer;border:2px solid transparent;transition:border 0.2s" onclick="setRole('admin')" id="role-admin">
+          <div style="font-size:28px;margin-bottom:8px">🛡️</div>
+          <div style="font-weight:700;font-size:14px">Admin</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Full system control</div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid transparent;transition:border 0.2s" onclick="setRole('analyst')" id="role-analyst">
+          <div style="font-size:28px;margin-bottom:8px">🔬</div>
+          <div style="font-weight:700;font-size:14px">Research Analyst</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Stock research & reports</div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid var(--accent);transition:border 0.2s" onclick="setRole('advisor')" id="role-advisor">
+          <div style="font-size:28px;margin-bottom:8px">💼</div>
+          <div style="font-weight:700;font-size:14px">Investment Advisor</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Manage client portfolios</div>
+        </div>
+        <div class="card" style="cursor:pointer;border:2px solid transparent;transition:border 0.2s" onclick="setRole('client')" id="role-client">
+          <div style="font-size:28px;margin-bottom:8px">👤</div>
+          <div style="font-weight:700;font-size:14px">Client / Investor</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">View portfolio & returns</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PORTFOLIO MODAL -->
+<div class="modal-overlay" id="addPortfolioModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create New Portfolio</div>
+      <button class="modal-close" onclick="closeModal('addPortfolioModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Portfolio Name</label>
+          <input class="form-input" placeholder="e.g. High Momentum Growth Fund" id="newPortName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Strategy Type</label>
+          <select class="form-select" id="newPortStrategy">
+            <option>High Momentum</option>
+            <option>High Profitability</option>
+            <option>Balanced</option>
+            <option>Conservative</option>
+            <option>Aggressive Growth</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Corpus (₹)</label>
+          <input class="form-input" type="number" placeholder="e.g. 5000000" id="newPortCorpus">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Benchmark Index</label>
+          <select class="form-select">
+            <option>NIFTY 50</option>
+            <option>NIFTY 500</option>
+            <option>BSE Sensex</option>
+            <option>NIFTY Midcap 150</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Risk Level</label>
+          <select class="form-select" id="newPortRisk">
+            <option>Low</option>
+            <option>Moderate</option>
+            <option selected>High</option>
+            <option>Very High</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Investment Objective</label>
+          <textarea class="form-input" rows="3" placeholder="Describe the investment goal..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addPortfolioModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createPortfolio()"><i class="ti ti-plus"></i> Create Portfolio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD STOCK MODAL -->
+<div class="modal-overlay" id="addStockModal">
+  <div class="modal" style="width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Add Stock Recommendation</div>
+      <button class="modal-close" onclick="closeModal('addStockModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Stock Symbol</label>
+          <input class="form-input" placeholder="e.g. RELIANCE" id="newStockSymbol">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exchange</label>
+          <select class="form-select"><option>NSE</option><option>BSE</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recommendation</label>
+          <select class="form-select" id="newStockRec">
+            <option>Strong Buy</option><option>Buy</option><option>Hold</option><option>Sell</option><option>Strong Sell</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Price (₹)</label>
+          <input class="form-input" type="number" placeholder="e.g. 2800" id="newStockTarget">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Price (₹)</label>
+          <input class="form-input" type="number" placeholder="e.g. 2450" id="newStockPrice">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sector</label>
+          <select class="form-select" id="newStockSector">
+            <option>Energy</option><option>IT</option><option>BFSI</option><option>FMCG</option><option>Pharma</option><option>Auto</option><option>Infrastructure</option><option>Metals</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Investment Thesis</label>
+          <textarea class="form-input" rows="3" placeholder="Key reasons for this recommendation..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addStockModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStockRec()"><i class="ti ti-check"></i> Submit Recommendation</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb" id="breadcrumb">Main</div>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box"><i class="ti ti-search" style="color:var(--text3)"></i><input placeholder="Search stocks, portfolios..."></div>
+      <button class="btn btn-ghost"><i class="ti ti-bell"></i></button>
+      <button class="btn btn-primary" id="topbarCTA" onclick="openModal('addPortfolioModal')"><i class="ti ti-plus"></i> New Portfolio</button>
+    </div>
+  </div>
+  <div class="content">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="view active" id="view-dashboard">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-briefcase" style="font-size:13px;color:var(--accent)"></i>Total AUM</div>
+        <div class="metric-value">₹48.6Cr</div>
+        <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px"></i>+12.4% this year</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-chart-bar" style="font-size:13px;color:var(--blue)"></i>Active Portfolios</div>
+        <div class="metric-value">14</div>
+        <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px"></i>3 new this month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-coin" style="font-size:13px;color:var(--amber)"></i>Avg Portfolio Return</div>
+        <div class="metric-value">18.7%</div>
+        <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px"></i>vs 13.2% Nifty 50</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="ti ti-users" style="font-size:13px;color:var(--purple)"></i>Active Clients</div>
+        <div class="metric-value">62</div>
+        <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px"></i>+8 new this quarter</div>
+      </div>
+    </div>
+
+    <div class="grid-65-35">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Portfolio Performance</div>
+            <div class="card-sub">12-month comparison vs benchmark</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="filterPerf(this,'1M')">1M</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="filterPerf(this,'3M')">3M</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;background:var(--bg);border-color:var(--accent);color:var(--accent)" onclick="filterPerf(this,'1Y')">1Y</button>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#1d9e75"></span>High Momentum Fund</span>
+          <span><span class="legend-dot" style="background:#378add"></span>High Profitability Fund</span>
+          <span><span class="legend-dot" style="background:#e2e6ef;border:1px solid #ccc"></span>NIFTY 50 (Benchmark)</span>
+        </div>
+        <div style="position:relative;height:230px"><canvas id="perfChart" role="img" aria-label="Portfolio performance vs benchmark over 12 months">Performance comparison chart</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Sector Allocation</div>
+          <div class="card-sub">Across all portfolios</div>
+        </div>
+        <div style="position:relative;height:180px"><canvas id="allocChart" role="img" aria-label="Sector allocation donut chart">Sector allocation</canvas></div>
+        <div style="margin-top:12px">
+          <div class="alloc-row"><span class="alloc-label">BFSI</span><div class="alloc-bar"><div class="alloc-fill" style="width:28%;background:#1d9e75"></div></div><span class="alloc-pct">28%</span></div>
+          <div class="alloc-row"><span class="alloc-label">IT</span><div class="alloc-bar"><div class="alloc-fill" style="width:22%;background:#378add"></div></div><span class="alloc-pct">22%</span></div>
+          <div class="alloc-row"><span class="alloc-label">Pharma</span><div class="alloc-bar"><div class="alloc-fill" style="width:15%;background:#7f77dd"></div></div><span class="alloc-pct">15%</span></div>
+          <div class="alloc-row"><span class="alloc-label">Auto</span><div class="alloc-bar"><div class="alloc-fill" style="width:12%;background:#ef9f27"></div></div><span class="alloc-pct">12%</span></div>
+          <div class="alloc-row"><span class="alloc-label">Others</span><div class="alloc-bar"><div class="alloc-fill" style="width:23%;background:#d3d1c7"></div></div><span class="alloc-pct">23%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Sector Momentum Heatmap</div>
+          <div class="card-sub">30-day price momentum (%)</div>
+        </div>
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Key Analytics</div></div>
+        <div class="stat-row"><span class="stat-label">CAGR (3Y)</span><span class="stat-val up">22.4%</span></div>
+        <div class="stat-row"><span class="stat-label">Sharpe Ratio</span><span class="stat-val up">1.84</span></div>
+        <div class="stat-row"><span class="stat-label">Max Drawdown</span><span class="stat-val down">-11.2%</span></div>
+        <div class="stat-row"><span class="stat-label">Alpha (vs Nifty 50)</span><span class="stat-val up">+5.5%</span></div>
+        <div class="stat-row"><span class="stat-label">Beta</span><span class="stat-val">0.87</span></div>
+        <div class="stat-row"><span class="stat-label">Sortino Ratio</span><span class="stat-val up">2.31</span></div>
+        <div class="stat-row"><span class="stat-label">Portfolio Volatility</span><span class="stat-val">14.6%</span></div>
+        <div class="stat-row"><span class="stat-label">Hit Rate</span><span class="stat-val up">68%</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Top Holdings</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Stock</th><th>Sector</th><th>Weight</th><th>P&L</th><th>Return</th></tr></thead>
+            <tbody>
+              <tr><td><b>RELIANCE</b></td><td>Energy</td><td>8.2%</td><td class="up">+₹4.2L</td><td class="up">+18.4%</td></tr>
+              <tr><td><b>HDFCBANK</b></td><td>BFSI</td><td>7.6%</td><td class="up">+₹3.8L</td><td class="up">+14.2%</td></tr>
+              <tr><td><b>INFY</b></td><td>IT</td><td>6.8%</td><td class="up">+₹2.9L</td><td class="up">+22.7%</td></tr>
+              <tr><td><b>SUNPHARMA</b></td><td>Pharma</td><td>5.4%</td><td class="up">+₹2.1L</td><td class="up">+31.5%</td></tr>
+              <tr><td><b>TATAMOTORS</b></td><td>Auto</td><td>4.9%</td><td class="down">-₹0.6L</td><td class="down">-3.2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Activity</div></div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#eaf3de"><i class="ti ti-trending-up" style="color:var(--green)"></i></div>
+          <div><div class="notif-text">High Momentum Portfolio rebalanced — 4 stocks rotated</div><div class="notif-time">Today, 9:45 AM</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#e6f1fb"><i class="ti ti-user-plus" style="color:var(--blue)"></i></div>
+          <div><div class="notif-text">New client onboarded: Priya Sharma (₹50L corpus)</div><div class="notif-time">Yesterday, 3:20 PM</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#faeeda"><i class="ti ti-file-analytics" style="color:var(--amber)"></i></div>
+          <div><div class="notif-text">Research report published: Q2 IT Sector Outlook</div><div class="notif-time">2 days ago</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#fcebeb"><i class="ti ti-alert-triangle" style="color:var(--red)"></i></div>
+          <div><div class="notif-text">TATAMOTORS below stop-loss — review recommended</div><div class="notif-time">3 days ago</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PORTFOLIOS ===== -->
+  <div class="view" id="view-portfolios">
+    <div class="section-header" style="margin-bottom:16px">
+      <div>
+        <div class="breadcrumb">Main</div>
+        <div class="section-title">Portfolio Management</div>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('addPortfolioModal')"><i class="ti ti-plus"></i> New Portfolio</button>
+    </div>
+
+    <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="metric-card"><div class="metric-label">Total Portfolios</div><div class="metric-value">14</div><div class="metric-change up">3 added this month</div></div>
+      <div class="metric-card"><div class="metric-label">Best Performer</div><div class="metric-value up">+31.2%</div><div class="metric-change">Pharma Momentum</div></div>
+      <div class="metric-card"><div class="metric-label">Total Realized P&L</div><div class="metric-value up">₹3.8Cr</div><div class="metric-change up">FY 2025-26</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'all')">All Portfolios</div>
+        <div class="tab" onclick="switchTab(this,'momentum')">High Momentum</div>
+        <div class="tab" onclick="switchTab(this,'profitability')">High Profitability</div>
+        <div class="tab" onclick="switchTab(this,'balanced')">Balanced</div>
+      </div>
+      <div class="table-wrap">
+        <table id="portfolioTable">
+          <thead>
+            <tr>
+              <th>Portfolio Name</th>
+              <th>Strategy</th>
+              <th>Corpus</th>
+              <th>Current Value</th>
+              <th>Absolute Return</th>
+              <th>CAGR</th>
+              <th>Sharpe</th>
+              <th>Risk</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="portfolioBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Monthly P&L (2025-26)</div></div>
+        <div style="position:relative;height:200px"><canvas id="plChart" role="img" aria-label="Monthly profit and loss bar chart">Monthly P&L chart</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Portfolio Rebalancing Queue</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Portfolio</th><th>Due Date</th><th>Drift</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Momentum Alpha</td><td>15 May</td><td class="up">+4.2%</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">Rebalance</button></td></tr>
+              <tr><td>Bluechip Growth</td><td>18 May</td><td class="down">-3.1%</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">Rebalance</button></td></tr>
+              <tr><td>Midcap Momentum</td><td>22 May</td><td class="up">+2.8%</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">Rebalance</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESEARCH HUB ===== -->
+  <div class="view" id="view-research">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Main</div>
+        <div class="section-title">Research Hub</div>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('addStockModal')"><i class="ti ti-plus"></i> New Recommendation</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'screening')">Stock Screening</div>
+      <div class="tab" onclick="switchTab(this,'recs')">Recommendations</div>
+      <div class="tab" onclick="switchTab(this,'technical')">Technical Analysis</div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">Stock Screener</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="form-select" style="width:140px;font-size:12px;padding:6px 10px">
+            <option>All Sectors</option><option>IT</option><option>BFSI</option><option>Pharma</option><option>Auto</option><option>FMCG</option>
+          </select>
+          <select class="form-select" style="width:140px;font-size:12px;padding:6px 10px">
+            <option>All Cap</option><option>Largecap</option><option>Midcap</option><option>Smallcap</option>
+          </select>
+          <button class="btn btn-primary" style="font-size:12px;padding:6px 12px"><i class="ti ti-filter"></i> Screen</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th><th>Company</th><th>Sector</th><th>Price</th><th>52W Return</th>
+              <th>P/E</th><th>EPS Growth</th><th>ROE</th><th>ROCE</th><th>Momentum Score</th><th>Rec</th>
+            </tr>
+          </thead>
+          <tbody id="screenerBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Research Reports</div></div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#e6f1fb"><i class="ti ti-file-text" style="color:var(--blue)"></i></div>
+          <div><div class="notif-text"><b>IT Sector Q2 Outlook</b> — Buy on dips; margin recovery expected</div><div class="notif-time">Analyst: Rahul Gupta · May 10, 2026</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#eaf3de"><i class="ti ti-file-text" style="color:var(--green)"></i></div>
+          <div><div class="notif-text"><b>SUNPHARMA Deep Dive</b> — Specialty pipeline driving re-rating</div><div class="notif-time">Analyst: Neha Singh · May 8, 2026</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#faeeda"><i class="ti ti-file-text" style="color:var(--amber)"></i></div>
+          <div><div class="notif-text"><b>Auto Sector: EV Transition</b> — Near-term headwinds, long-term buy</div><div class="notif-time">Analyst: Vikram Shah · May 5, 2026</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recommendation Distribution</div></div>
+        <div style="position:relative;height:180px"><canvas id="recChart" role="img" aria-label="Recommendation distribution pie chart">Recommendation pie chart</canvas></div>
+        <div class="chart-legend" style="margin-top:8px;justify-content:center">
+          <span><span class="legend-dot" style="background:#1d9e75"></span>Strong Buy (12)</span>
+          <span><span class="legend-dot" style="background:#63992a"></span>Buy (24)</span>
+          <span><span class="legend-dot" style="background:#ef9f27"></span>Hold (18)</span>
+          <span><span class="legend-dot" style="background:#e24b4a"></span>Sell (6)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== INVESTMENT ADVISORY ===== -->
+  <div class="view" id="view-advisory">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Advisory</div>
+        <div class="section-title">Investment Advisory</div>
+      </div>
+      <button class="btn btn-primary" onclick="showClientForm()"><i class="ti ti-user-plus"></i> Onboard Client</button>
+    </div>
+
+    <div class="grid-3">
+      <div class="metric-card"><div class="metric-label">Total Clients</div><div class="metric-value">62</div></div>
+      <div class="metric-card"><div class="metric-label">AUM Under Advisory</div><div class="metric-value">₹48.6Cr</div></div>
+      <div class="metric-card"><div class="metric-label">Avg Client Return</div><div class="metric-value up">18.7%</div></div>
+    </div>
+
+    <div class="grid-65-35">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Client Portfolio Overview</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Client</th><th>Risk Profile</th><th>Corpus</th><th>Current Value</th><th>Return</th><th>Goal</th><th>Status</th></tr></thead>
+            <tbody id="clientBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" id="clientDetail">
+        <div class="card-header"><div class="card-title">Client Detail</div></div>
+        <div class="profile-card">
+          <div class="profile-avatar" style="background:var(--accent)">PS</div>
+          <div>
+            <div style="font-weight:700;font-size:15px">Priya Sharma</div>
+            <div style="font-size:12px;color:var(--text3)">Client since Jan 2024</div>
+            <div style="margin-top:6px"><span class="badge badge-green">Moderate Risk</span></div>
+          </div>
+        </div>
+        <div class="stat-row"><span class="stat-label">Goal</span><span class="stat-val">Retirement</span></div>
+        <div class="stat-row"><span class="stat-label">Corpus</span><span class="stat-val">₹50L</span></div>
+        <div class="stat-row"><span class="stat-label">Current Value</span><span class="stat-val up">₹58.4L</span></div>
+        <div class="stat-row"><span class="stat-label">Absolute Return</span><span class="stat-val up">+16.8%</span></div>
+        <div class="stat-row"><span class="stat-label">Time Horizon</span><span class="stat-val">15 Years</span></div>
+        <div class="stat-row"><span class="stat-label">Risk Score</span><span class="stat-val">6.2 / 10</span></div>
+        <div style="margin-top:12px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">Risk Meter</div>
+          <div class="risk-meter">
+            <div class="risk-bar" style="background:#1d9e75"></div>
+            <div class="risk-bar" style="background:#1d9e75"></div>
+            <div class="risk-bar" style="background:#1d9e75"></div>
+            <div class="risk-bar" style="background:#ef9f27"></div>
+            <div class="risk-bar" style="background:#ef9f27"></div>
+            <div class="risk-bar" style="background:var(--border)"></div>
+            <div class="risk-bar" style="background:var(--border)"></div>
+            <div class="risk-bar" style="background:var(--border)"></div>
+            <div class="risk-bar" style="background:var(--border)"></div>
+            <div class="risk-bar" style="background:var(--border)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MOMENTUM ENGINE ===== -->
+  <div class="view" id="view-momentum">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Advisory</div>
+        <div class="section-title">High Momentum Portfolio Engine</div>
+      </div>
+      <button class="btn btn-primary"><i class="ti ti-refresh"></i> Refresh Signals</button>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Momentum Picks (Top 20)</div><div class="metric-value">18</div><div class="metric-change up">Active Buys</div></div>
+      <div class="metric-card"><div class="metric-label">Avg RS Score</div><div class="metric-value">82.4</div><div class="metric-change up">Top Quartile</div></div>
+      <div class="metric-card"><div class="metric-label">Volume Breakouts</div><div class="metric-value">7</div><div class="metric-change">Last 5 sessions</div></div>
+      <div class="metric-card"><div class="metric-label">Momentum Portfolio Return</div><div class="metric-value up">+26.8%</div><div class="metric-change up">YTD</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Relative Strength Rankings</div><div class="card-sub">1-month RS vs NIFTY 500</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Symbol</th><th>Sector</th><th>RS Score</th><th>1M Return</th><th>3M Return</th><th>Signal</th></tr></thead>
+            <tbody id="rsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Volume Breakout Tracker</div><div class="card-sub">50D avg volume comparison</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Vol Surge</th><th>Price Action</th><th>Breakout Type</th></tr></thead>
+            <tbody>
+              <tr><td><b>SUNPHARMA</b></td><td class="up">+312%</td><td class="up">+4.8%</td><td><span class="badge badge-green">52W High</span></td></tr>
+              <tr><td><b>HCLTECH</b></td><td class="up">+245%</td><td class="up">+3.2%</td><td><span class="badge badge-blue">Resistance Break</span></td></tr>
+              <tr><td><b>TITAN</b></td><td class="up">+198%</td><td class="up">+2.9%</td><td><span class="badge badge-green">52W High</span></td></tr>
+              <tr><td><b>COALINDIA</b></td><td class="up">+176%</td><td class="up">+2.1%</td><td><span class="badge badge-purple">Trend Breakout</span></td></tr>
+              <tr><td><b>BHARTIARTL</b></td><td class="up">+154%</td><td class="up">+1.8%</td><td><span class="badge badge-blue">Resistance Break</span></td></tr>
+              <tr><td><b>GRASIM</b></td><td class="up">+132%</td><td class="down">-0.4%</td><td><span class="badge badge-amber">Watch</span></td></tr>
+              <tr><td><b>NTPC</b></td><td class="up">+121%</td><td class="up">+1.2%</td><td><span class="badge badge-green">Trend Breakout</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Sector Momentum Comparison</div><div class="card-sub">Relative performance of sectors over 3 months</div></div>
+      <div style="position:relative;height:220px"><canvas id="sectorMomChart" role="img" aria-label="Sector momentum bar chart">Sector momentum</canvas></div>
+    </div>
+  </div>
+
+  <!-- ===== PROFITABILITY ENGINE ===== -->
+  <div class="view" id="view-profitability">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Advisory</div>
+        <div class="section-title">High Profitability Portfolio Engine</div>
+      </div>
+      <button class="btn btn-primary"><i class="ti ti-refresh"></i> Refresh Signals</button>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Avg EPS Growth (YoY)</div><div class="metric-value up">34.2%</div></div>
+      <div class="metric-card"><div class="metric-label">Avg ROE</div><div class="metric-value up">22.8%</div></div>
+      <div class="metric-card"><div class="metric-label">Avg ROCE</div><div class="metric-value up">19.4%</div></div>
+      <div class="metric-card"><div class="metric-label">Portfolio CAGR (3Y)</div><div class="metric-value up">28.3%</div></div>
+    </div>
+
+    <div class="grid-65-35">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Profitability Screener</div><div class="card-sub">ROE > 15%, ROCE > 12%, EPS Growth > 20%</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Sector</th><th>ROE</th><th>ROCE</th><th>EPS Growth</th><th>D/E Ratio</th><th>P/E</th><th>Score</th></tr></thead>
+            <tbody id="profitBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Quality Score Distribution</div></div>
+        <div style="position:relative;height:200px"><canvas id="qualityChart" role="img" aria-label="Quality score distribution chart">Quality scores</canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REPORTS ===== -->
+  <div class="view" id="view-reports">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Reports</div>
+        <div class="section-title">Reporting Module</div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="card" style="cursor:pointer;transition:box-shadow 0.2s" onmouseenter="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:32px;margin-bottom:12px">📊</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">Portfolio Summary Report</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Complete portfolio holdings, performance & analytics</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-type-pdf"></i> PDF</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-table"></i> Excel</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-csv"></i> CSV</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:box-shadow 0.2s" onmouseenter="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:32px;margin-bottom:12px">📈</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">Performance Report</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Daily, weekly, monthly returns vs benchmark</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-type-pdf"></i> PDF</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-table"></i> Excel</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-csv"></i> CSV</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:box-shadow 0.2s" onmouseenter="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:32px;margin-bottom:12px">👤</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">Client Investment Report</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Personalized client statement with P&L breakdown</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-type-pdf"></i> PDF</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-table"></i> Excel</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px"><i class="ti ti-file-csv"></i> CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Report History</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Report</th><th>Generated By</th><th>Period</th><th>Date</th><th>Format</th><th>Download</th></tr></thead>
+          <tbody>
+            <tr><td>Portfolio Summary</td><td>Aryan Mehta</td><td>Apr 2026</td><td>May 1, 2026</td><td><span class="badge badge-red">PDF</span></td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px"><i class="ti ti-download"></i></button></td></tr>
+            <tr><td>Monthly Performance</td><td>System</td><td>Apr 2026</td><td>May 1, 2026</td><td><span class="badge badge-green">Excel</span></td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px"><i class="ti ti-download"></i></button></td></tr>
+            <tr><td>Client Report – Priya Sharma</td><td>Aryan Mehta</td><td>Q4 FY26</td><td>Apr 15, 2026</td><td><span class="badge badge-red">PDF</span></td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px"><i class="ti ti-download"></i></button></td></tr>
+            <tr><td>Momentum Screener Output</td><td>Rahul Gupta</td><td>May 2026</td><td>May 7, 2026</td><td><span class="badge badge-gray">CSV</span></td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px"><i class="ti ti-download"></i></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RISK MANAGEMENT ===== -->
+  <div class="view" id="view-risk">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Reports</div>
+        <div class="section-title">Risk Management</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Portfolio Beta</div><div class="metric-value">0.87</div><div class="metric-change">Lower than market</div></div>
+      <div class="metric-card"><div class="metric-label">Max Drawdown</div><div class="metric-value down">-11.2%</div><div class="metric-change">Last 12 months</div></div>
+      <div class="metric-card"><div class="metric-label">VaR (95%, 1D)</div><div class="metric-value down">-1.8%</div><div class="metric-change">Value at Risk</div></div>
+      <div class="metric-card"><div class="metric-label">Concentration Risk</div><div class="metric-value">Low</div><div class="metric-change up">Top 5 = 35%</div></div>
+    </div>
+
+    <div class="grid-65-35">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Drawdown Analysis</div><div class="card-sub">Historical portfolio drawdown curve</div></div>
+        <div style="position:relative;height:220px"><canvas id="drawdownChart" role="img" aria-label="Portfolio drawdown chart">Drawdown analysis</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Risk Flags</div></div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#fcebeb"><i class="ti ti-alert-triangle" style="color:var(--red)"></i></div>
+          <div><div class="notif-text"><b>TATAMOTORS</b> — Breached -5% stop-loss threshold</div><div class="notif-time">May 13, 2026</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#faeeda"><i class="ti ti-alert-circle" style="color:var(--amber)"></i></div>
+          <div><div class="notif-text"><b>IT Sector</b> — Overweight by 4.2% vs target allocation</div><div class="notif-time">May 12, 2026</div></div>
+        </div>
+        <div class="notif">
+          <div class="notif-icon" style="background:#faeeda"><i class="ti ti-alert-circle" style="color:var(--amber)"></i></div>
+          <div><div class="notif-text"><b>Portfolio Drift</b> — Momentum Alpha needs rebalancing</div><div class="notif-time">May 10, 2026</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="view" id="view-settings">
+    <div class="section-header">
+      <div>
+        <div class="breadcrumb">Reports</div>
+        <div class="section-title">System Settings</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">User Management</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Role</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Aryan Mehta</td><td><span class="badge badge-blue">Investment Advisor</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px"><i class="ti ti-edit"></i></button></td></tr>
+              <tr><td>Rahul Gupta</td><td><span class="badge badge-purple">Research Analyst</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px"><i class="ti ti-edit"></i></button></td></tr>
+              <tr><td>Neha Singh</td><td><span class="badge badge-purple">Research Analyst</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px"><i class="ti ti-edit"></i></button></td></tr>
+              <tr><td>Priya Sharma</td><td><span class="badge badge-gray">Client</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px"><i class="ti ti-edit"></i></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-primary"><i class="ti ti-plus"></i> Add User</button></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">System Configuration</div></div>
+        <div class="form-group"><label class="form-label">Default Benchmark</label><select class="form-select"><option>NIFTY 50</option><option>NIFTY 500</option><option>BSE Sensex</option></select></div>
+        <div class="form-group"><label class="form-label">Rebalancing Frequency</label><select class="form-select"><option>Monthly</option><option>Quarterly</option><option>Semi-annually</option></select></div>
+        <div class="form-group"><label class="form-label">Stop-Loss Threshold (%)</label><input class="form-input" type="number" value="5" min="1" max="20"></div>
+        <div class="form-group"><label class="form-label">Alert Email</label><input class="form-input" type="email" value="admin@pmspro.in"></div>
+        <button class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<script>
+// ─── DATA ────────────────────────────────────────────────
+const portfolios = [
+  {name:'Momentum Alpha',strategy:'High Momentum',corpus:'2,00,00,000',current:'2,56,40,000',abs:'+28.2%',cagr:'26.1%',sharpe:'2.14',risk:'High',status:'Active'},
+  {name:'Bluechip Growth',strategy:'High Profitability',corpus:'5,00,00,000',current:'5,74,50,000',abs:'+14.9%',cagr:'18.2%',sharpe:'1.82',risk:'Moderate',status:'Active'},
+  {name:'Midcap Momentum',strategy:'High Momentum',corpus:'1,50,00,000',current:'2,02,50,000',abs:'+35.0%',cagr:'31.4%',sharpe:'1.96',risk:'Very High',status:'Active'},
+  {name:'Pharma Focus',strategy:'High Profitability',corpus:'80,00,000',current:'1,05,60,000',abs:'+32.0%',cagr:'29.8%',sharpe:'2.31',risk:'High',status:'Active'},
+  {name:'Conservative Income',strategy:'Balanced',corpus:'3,00,00,000',current:'3,27,00,000',abs:'+9.0%',cagr:'10.2%',sharpe:'1.45',risk:'Low',status:'Active'},
+  {name:'BFSI Alpha',strategy:'High Momentum',corpus:'1,20,00,000',current:'1,38,00,000',abs:'+15.0%',cagr:'16.8%',sharpe:'1.68',risk:'Moderate',status:'Review'},
+];
+
+const screenerData = [
+  {sym:'SUNPHARMA',co:'Sun Pharma',sector:'Pharma',price:'₹1,642',ret52:'+31.5%',pe:'32.4',eps:'+42.1%',roe:'18.2%',roce:'16.8%',score:91,rec:'Strong Buy'},
+  {sym:'INFY',co:'Infosys',sector:'IT',price:'₹1,478',ret52:'+22.7%',pe:'24.8',eps:'+18.4%',roe:'31.6%',roce:'29.2%',score:86,rec:'Buy'},
+  {sym:'HDFCBANK',co:'HDFC Bank',sector:'BFSI',price:'₹1,862',ret52:'+14.2%',pe:'18.2',eps:'+22.8%',roe:'16.4%',roce:'—',score:80,rec:'Buy'},
+  {sym:'TITAN',co:'Titan Company',sector:'Consumer',price:'₹3,218',ret52:'+28.4%',pe:'62.1',eps:'+31.2%',roe:'28.8%',roce:'24.6%',score:82,rec:'Buy'},
+  {sym:'RELIANCE',co:'Reliance Ind.',sector:'Energy',price:'₹2,741',ret52:'+18.4%',pe:'22.6',eps:'+12.8%',roe:'10.2%',roce:'9.8%',score:74,rec:'Hold'},
+  {sym:'TATAMOTORS',co:'Tata Motors',sector:'Auto',price:'₹824',ret52:'-3.2%',pe:'8.4',eps:'-8.4%',roe:'22.8%',roce:'14.2%',score:54,rec:'Hold'},
+  {sym:'HCLTECH',co:'HCL Technologies',sector:'IT',price:'₹1,612',ret52:'+24.8%',pe:'26.4',eps:'+21.6%',roe:'24.2%',roce:'22.4%',score:85,rec:'Buy'},
+  {sym:'BAJFINANCE',co:'Bajaj Finance',sector:'BFSI',price:'₹6,824',ret52:'+19.2%',pe:'28.4',eps:'+26.4%',roe:'18.6%',roce:'—',score:79,rec:'Buy'},
+];
+
+const clients = [
+  {name:'Priya Sharma',initials:'PS',color:'#1d9e75',risk:'Moderate',corpus:'₹50L',value:'₹58.4L',ret:'+16.8%',goal:'Retirement',status:'Active'},
+  {name:'Rohit Kapoor',initials:'RK',color:'#378add',risk:'Aggressive',corpus:'₹1.2Cr',value:'₹1.58Cr',ret:'+31.8%',goal:'Wealth Creation',status:'Active'},
+  {name:'Meena Joshi',initials:'MJ',color:'#7f77dd',risk:'Conservative',corpus:'₹30L',value:'₹33.2L',ret:'+10.7%',goal:'Child Education',status:'Active'},
+  {name:'Anil Sharma',initials:'AS',color:'#ef9f27',risk:'Moderate',corpus:'₹80L',value:'₹91.2L',ret:'+14.0%',goal:'Tax Saving',status:'Active'},
+  {name:'Kavita Patel',initials:'KP',color:'#e24b4a',risk:'Aggressive',corpus:'₹2Cr',value:'₹2.64Cr',ret:'+32.0%',goal:'FIRE',status:'Review'},
+];
+
+const rsData = [
+  {rank:1,sym:'SUNPHARMA',sector:'Pharma',score:94,m1:'+12.4%',m3:'+31.5%',signal:'Strong Buy'},
+  {rank:2,sym:'TITAN',sector:'Consumer',score:91,m1:'+9.8%',m3:'+28.4%',signal:'Strong Buy'},
+  {rank:3,sym:'HCLTECH',sector:'IT',score:88,m1:'+8.2%',m3:'+24.8%',signal:'Strong Buy'},
+  {rank:4,sym:'BAJFINANCE',sector:'BFSI',score:84,m1:'+6.4%',m3:'+19.2%',signal:'Buy'},
+  {rank:5,sym:'INFY',sector:'IT',score:82,m1:'+5.8%',m3:'+22.7%',signal:'Buy'},
+  {rank:6,sym:'RELIANCE',sector:'Energy',score:76,m1:'+4.2%',m3:'+18.4%',signal:'Buy'},
+  {rank:7,sym:'HDFCBANK',sector:'BFSI',score:72,m1:'+3.8%',m3:'+14.2%',signal:'Buy'},
+  {rank:8,sym:'TATAMOTORS',sector:'Auto',score:42,m1:'-1.8%',m3:'-3.2%',signal:'Sell'},
+];
+
+const profitData = [
+  {sym:'INFY',sector:'IT',roe:'31.6%',roce:'29.2%',eps:'+18.4%',de:'0.0',pe:'24.8',score:94},
+  {sym:'HCLTECH',sector:'IT',roe:'24.2%',roce:'22.4%',eps:'+21.6%',de:'0.1',pe:'26.4',score:90},
+  {sym:'BAJFINANCE',sector:'BFSI',roe:'18.6%',roce:'—',eps:'+26.4%',de:'4.2',pe:'28.4',score:86},
+  {sym:'SUNPHARMA',sector:'Pharma',roe:'18.2%',roce:'16.8%',eps:'+42.1%',de:'0.0',pe:'32.4',score:92},
+  {sym:'TITAN',sector:'Consumer',roe:'28.8%',roce:'24.6%',eps:'+31.2%',de:'0.2',pe:'62.1',score:88},
+  {sym:'HDFCBANK',sector:'BFSI',roe:'16.4%',roce:'—',eps:'+22.8%',de:'8.4',pe:'18.2',score:82},
+];
+
+const heatmapData = [
+  {sector:'IT',val:8.4,color:'#1d9e75'},{sector:'Pharma',val:12.1,color:'#0f6e56'},
+  {sector:'BFSI',val:5.2,color:'#63992a'},{sector:'FMCG',val:-1.4,color:'#a32d2d'},
+  {sector:'Auto',val:-3.2,color:'#791f1f'},{sector:'Energy',val:6.8,color:'#1d9e75'},
+  {sector:'Metals',val:4.1,color:'#63992a'},{sector:'Infra',val:7.2,color:'#1d9e75'},
+  {sector:'Consumer',val:9.8,color:'#0f6e56'},{sector:'Telecom',val:3.4,color:'#63992a'},
+];
+
+// ─── RENDER FUNCTIONS ────────────────────────────────────
+function renderPortfolios(){
+  const body = document.getElementById('portfolioBody');
+  const riskBadge = {Low:'badge-blue',Moderate:'badge-green',High:'badge-amber','Very High':'badge-red'};
+  body.innerHTML = portfolios.map(p => `
+    <tr>
+      <td><b>${p.name}</b></td>
+      <td><span class="badge ${p.strategy==='High Momentum'?'badge-green':p.strategy==='Balanced'?'badge-blue':'badge-purple'}">${p.strategy}</span></td>
+      <td>₹${p.corpus}</td>
+      <td>₹${p.current}</td>
+      <td class="up">${p.abs}</td>
+      <td class="up">${p.cagr}</td>
+      <td class="up">${p.sharpe}</td>
+      <td><span class="badge ${riskBadge[p.risk]}">${p.risk}</span></td>
+      <td><span class="badge ${p.status==='Active'?'badge-green':'badge-amber'}">${p.status}</span></td>
+      <td>
+        <button class="btn btn-ghost" style="padding:4px 9px;font-size:12px"><i class="ti ti-eye"></i></button>
+        <button class="btn btn-ghost" style="padding:4px 9px;font-size:12px"><i class="ti ti-edit"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderScreener(){
+  const body = document.getElementById('screenerBody');
+  const recColor = {'Strong Buy':'badge-green','Buy':'badge-blue','Hold':'badge-amber','Sell':'badge-red','Strong Sell':'badge-red'};
+  const retClass = s => s.startsWith('-')?'down':'up';
+  body.innerHTML = screenerData.map(s => `
+    <tr>
+      <td><b>${s.sym}</b></td><td>${s.co}</td>
+      <td><span class="badge badge-gray">${s.sector}</span></td>
+      <td>${s.price}</td>
+      <td class="${retClass(s.ret52)}">${s.ret52}</td>
+      <td>${s.pe}</td>
+      <td class="${retClass(s.eps)}">${s.eps}</td>
+      <td>${s.roe}</td><td>${s.roce}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:6px;background:var(--border);border-radius:10px;min-width:60px">
+            <div style="height:100%;border-radius:10px;background:${s.score>=80?'var(--green)':s.score>=60?'var(--amber)':'var(--red)'};width:${s.score}%"></div>
+          </div>
+          <span style="font-size:12px;font-weight:700">${s.score}</span>
+        </div>
+      </td>
+      <td><span class="badge ${recColor[s.rec]}">${s.rec}</span></td>
+    </tr>`).join('');
+}
+
+function renderClients(){
+  const body = document.getElementById('clientBody');
+  const riskBadge = {Conservative:'badge-blue',Moderate:'badge-green',Aggressive:'badge-amber'};
+  body.innerHTML = clients.map(c => `
+    <tr style="cursor:pointer" onclick="selectClient('${c.name}','${c.initials}','${c.color}','${c.risk}','${c.corpus}','${c.value}','${c.ret}','${c.goal}')">
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${c.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:#fff">${c.initials}</div>
+          <b>${c.name}</b>
+        </div>
+      </td>
+      <td><span class="badge ${riskBadge[c.risk]||'badge-amber'}">${c.risk}</span></td>
+      <td>${c.corpus}</td><td>${c.value}</td>
+      <td class="up">${c.ret}</td>
+      <td>${c.goal}</td>
+      <td><span class="badge ${c.status==='Active'?'badge-green':'badge-amber'}">${c.status}</span></td>
+    </tr>`).join('');
+}
+
+function renderRS(){
+  const body = document.getElementById('rsBody');
+  const signalBadge = {'Strong Buy':'badge-green','Buy':'badge-blue','Hold':'badge-amber','Sell':'badge-red'};
+  body.innerHTML = rsData.map(r => `
+    <tr>
+      <td><b>#${r.rank}</b></td>
+      <td><b>${r.sym}</b></td>
+      <td>${r.sector}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:50px;height:6px;background:var(--border);border-radius:10px">
+            <div style="height:100%;border-radius:10px;background:${r.score>=80?'var(--green)':r.score>=60?'var(--amber)':'var(--red)'};width:${r.score}%"></div>
+          </div>
+          <b>${r.score}</b>
+        </div>
+      </td>
+      <td class="${r.m1.startsWith('-')?'down':'up'}">${r.m1}</td>
+      <td class="${r.m3.startsWith('-')?'down':'up'}">${r.m3}</td>
+      <td><span class="badge ${signalBadge[r.signal]}">${r.signal}</span></td>
+    </tr>`).join('');
+}
+
+function renderProfitability(){
+  const body = document.getElementById('profitBody');
+  body.innerHTML = profitData.map(p => `
+    <tr>
+      <td><b>${p.sym}</b></td>
+      <td><span class="badge badge-gray">${p.sector}</span></td>
+      <td class="up">${p.roe}</td>
+      <td class="up">${p.roce}</td>
+      <td class="up">${p.eps}</td>
+      <td>${p.de}</td>
+      <td>${p.pe}</td>
+      <td>
+        <div class="momentum-score" style="background:${p.score>=90?'#eaf3de':p.score>=80?'#e6f1fb':'#faeeda'};color:${p.score>=90?'#3b6d11':p.score>=80?'#185fa5':'#854f0b'}">
+          ${p.score}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderHeatmap(){
+  const el = document.getElementById('heatmap');
+  el.innerHTML = heatmapData.map(h => `
+    <div class="heat-cell" style="background:${h.color}">
+      <div class="sector">${h.sector}</div>
+      <div class="heat-val">${h.val>0?'+':''}${h.val}%</div>
+    </div>`).join('');
+}
+
+// ─── CHARTS ─────────────────────────────────────────────
+function initCharts(){
+  // Performance chart
+  const months = ['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'];
+  new Chart(document.getElementById('perfChart'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[
+        {label:'Momentum Fund',data:[100,104,109,107,116,122,119,128,134,131,138,142],borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,0.08)',fill:true,tension:0.4,pointRadius:3},
+        {label:'Profitability Fund',data:[100,102,108,106,112,118,115,122,126,124,130,134],borderColor:'#378add',backgroundColor:'rgba(55,138,221,0.05)',fill:true,tension:0.4,pointRadius:3},
+        {label:'NIFTY 50',data:[100,101,105,103,107,110,109,113,116,115,119,121],borderColor:'#d3d1c7',backgroundColor:'transparent',borderDash:[4,4],tension:0.4,pointRadius:0}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a93a8',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#8a93a8',font:{size:11}}}}}
+  });
+
+  // Allocation donut
+  new Chart(document.getElementById('allocChart'),{
+    type:'doughnut',
+    data:{
+      labels:['BFSI','IT','Pharma','Auto','FMCG','Others'],
+      datasets:[{data:[28,22,15,12,8,15],backgroundColor:['#1d9e75','#378add','#7f77dd','#ef9f27','#d4537e','#d3d1c7'],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+
+  // P&L chart
+  new Chart(document.getElementById('plChart'),{
+    type:'bar',
+    data:{
+      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{
+        label:'P&L (₹L)',
+        data:[24,18,31,-8,42,28,36,-12,48,22,38,44],
+        backgroundColor: d => d.raw >= 0 ? 'rgba(29,158,117,0.8)' : 'rgba(226,75,74,0.8)',
+        borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a93a8',font:{size:11},callback:v=>v+'L'}},x:{grid:{display:false},ticks:{color:'#8a93a8',font:{size:11}}}}}
+  });
+
+  // Recommendation pie
+  new Chart(document.getElementById('recChart'),{
+    type:'doughnut',
+    data:{
+      labels:['Strong Buy','Buy','Hold','Sell'],
+      datasets:[{data:[12,24,18,6],backgroundColor:['#1d9e75','#63992a','#ef9f27','#e24b4a'],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
+  });
+
+  // Sector momentum
+  new Chart(document.getElementById('sectorMomChart'),{
+    type:'bar',
+    data:{
+      labels:['Pharma','IT','Consumer','Energy','Infra','Metals','BFSI','Telecom','FMCG','Auto'],
+      datasets:[{
+        label:'3M Return (%)',
+        data:[12.1,8.4,9.8,6.8,7.2,4.1,5.2,3.4,-1.4,-3.2],
+        backgroundColor:['#0f6e56','#1d9e75','#0f6e56','#1d9e75','#1d9e75','#63992a','#63992a','#63992a','#a32d2d','#791f1f'],
+        borderRadius:5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a93a8',font:{size:11},callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#5a6070',font:{size:12}}}}}
+  });
+
+  // Quality distribution
+  new Chart(document.getElementById('qualityChart'),{
+    type:'bar',
+    data:{
+      labels:['50-60','60-70','70-80','80-90','90-100'],
+      datasets:[{label:'Count',data:[4,8,14,22,12],backgroundColor:'#7f77dd',borderRadius:5}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a93a8',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#8a93a8',font:{size:11}}}}}
+  });
+
+  // Drawdown chart
+  const dd = [0,-1.2,-3.4,-2.1,-5.8,-4.2,-11.2,-8.6,-6.4,-4.8,-2.2,-1.4];
+  new Chart(document.getElementById('drawdownChart'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[{label:'Drawdown %',data:dd,borderColor:'#e24b4a',backgroundColor:'rgba(226,75,74,0.1)',fill:true,tension:0.4,pointRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a93a8',font:{size:11},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#8a93a8',font:{size:11}}}}}
+  });
+}
+
+// ─── INTERACTIONS ────────────────────────────────────────
+function showView(id, el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard',portfolios:'Portfolio Management',research:'Research Hub',advisory:'Investment Advisory',momentum:'Momentum Engine',profitability:'Profitability Engine',reports:'Reports',risk:'Risk Management',settings:'Settings'};
+  document.getElementById('pageTitle').textContent = titles[id]||id;
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function toggleRoleModal(){document.getElementById('roleModal').classList.toggle('open')}
+
+const roles = {
+  admin:{name:'Admin User',initials:'AU',label:'Admin'},
+  analyst:{name:'Rahul Gupta',initials:'RG',label:'Research Analyst'},
+  advisor:{name:'Aryan Mehta',initials:'AM',label:'Investment Advisor'},
+  client:{name:'Priya Sharma',initials:'PS',label:'Client / Investor'}
+};
+let currentRole = 'advisor';
+
+function setRole(role){
+  currentRole = role;
+  const r = roles[role];
+  document.getElementById('userAvatar').textContent = r.initials;
+  document.getElementById('userName').textContent = r.name;
+  document.getElementById('userRoleLabel').textContent = r.label;
+  document.querySelectorAll('[id^="role-"]').forEach(el=>{
+    el.style.border = '2px solid transparent';
+  });
+  document.getElementById('role-'+role).style.border = '2px solid var(--accent)';
+  toggleRoleModal();
+}
+
+function createPortfolio(){
+  const name = document.getElementById('newPortName').value||'New Portfolio';
+  const strategy = document.getElementById('newPortStrategy').value;
+  const corpus = document.getElementById('newPortCorpus').value||'1,00,00,000';
+  const risk = document.getElementById('newPortRisk').value;
+  portfolios.unshift({name,strategy,corpus:Number(corpus).toLocaleString('en-IN'),current:Number(corpus).toLocaleString('en-IN'),abs:'0.0%',cagr:'—',sharpe:'—',risk,status:'Active'});
+  renderPortfolios();
+  closeModal('addPortfolioModal');
+}
+
+function addStockRec(){
+  const sym = document.getElementById('newStockSymbol').value||'NEW';
+  const rec = document.getElementById('newStockRec').value;
+  const target = document.getElementById('newStockTarget').value;
+  const price = document.getElementById('newStockPrice').value;
+  const sector = document.getElementById('newStockSector').value;
+  screenerData.unshift({sym,co:sym+' Ltd.',sector,price:'₹'+price,ret52:'+0.0%',pe:'—',eps:'—',roe:'—',roce:'—',score:70,rec});
+  renderScreener();
+  closeModal('addStockModal');
+}
+
+function selectClient(name,initials,color,risk,corpus,value,ret,goal){
+  const riskScore = {Conservative:'4.0',Moderate:'6.2',Aggressive:'8.4'};
+  const score = riskScore[risk]||'6.0';
+  const filled = Math.round(parseFloat(score));
+  const bars = Array.from({length:10},(_,i)=>{
+    let bg = i < filled ? (i<3?'var(--green)':i<6?'var(--amber)':'var(--red)') : 'var(--border)';
+    return `<div class="risk-bar" style="background:${bg}"></div>`;
+  }).join('');
+  document.getElementById('clientDetail').innerHTML = `
+    <div class="card-header"><div class="card-title">Client Detail</div></div>
+    <div class="profile-card">
+      <div class="profile-avatar" style="background:${color}">${initials}</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">${name}</div>
+        <div style="font-size:12px;color:var(--text3)">Client since 2024</div>
+        <div style="margin-top:6px"><span class="badge badge-green">${risk} Risk</span></div>
+      </div>
+    </div>
+    <div class="stat-row"><span class="stat-label">Goal</span><span class="stat-val">${goal}</span></div>
+    <div class="stat-row"><span class="stat-label">Corpus</span><span class="stat-val">${corpus}</span></div>
+    <div class="stat-row"><span class="stat-label">Current Value</span><span class="stat-val up">${value}</span></div>
+    <div class="stat-row"><span class="stat-label">Return</span><span class="stat-val up">${ret}</span></div>
+    <div class="stat-row"><span class="stat-label">Risk Score</span><span class="stat-val">${score} / 10</span></div>
+    <div style="margin-top:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">Risk Meter</div>
+      <div class="risk-meter">${bars}</div>
+    </div>`;
+}
+
+function switchTab(el, id){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function filterPerf(el, period){
+  el.parentElement.querySelectorAll('.btn').forEach(b=>{
+    b.style.background='transparent';b.style.borderColor='var(--border)';b.style.color='var(--text2)';
+  });
+  el.style.background='var(--bg)';el.style.borderColor='var(--accent)';el.style.color='var(--accent)';
+}
+
+function showClientForm(){
+  alert('Client onboarding form — connect to backend to enable full workflow.');
+}
+
+// ─── INIT ────────────────────────────────────────────────
+renderPortfolios();
+renderScreener();
+renderClients();
+renderRS();
+renderProfitability();
+renderHeatmap();
+initCharts();
+
+// P&L chart color override (backend per-bar)
+Chart.defaults.color = '#8a93a8';
+</script>
+</body>
+</html>
